@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Technology;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use Symfony\Component\HttpKernel\Profiler\Profile;
@@ -26,8 +27,9 @@ class ProjectController extends Controller
     public function create()
     {
         $types = Type::all();
+        $technologies = Technology::all();
 
-        return view('admin.projects.create', compact('types'));
+        return view('admin.projects.create', compact('types', 'technologies'));
     }
 
     /**
@@ -40,9 +42,15 @@ class ProjectController extends Controller
             'image_path' => 'required|string',
             'description' => 'required|string',
             'type_id' => 'required',
+            'technologies' => 'array',
         ]);
 
-        Project::create($request->all());
+        $project = Project::create($request->all());
+
+        if ($request->has('technologies')) {
+            $technologies = $request->input('technologies');
+            $project->technologies()->sync($technologies);
+        }
 
         return redirect()->route('admin.projects.index')
             ->with('success', 'Progetto creato');
@@ -66,8 +74,9 @@ class ProjectController extends Controller
     {
         $project = Project::findOrFail($id);
         $types = Type::all();
+        $technologies = Technology::all();
 
-        return view('admin.projects.edit', compact('project', 'types'));
+        return view('admin.projects.edit', compact('project', 'types', 'technologies'));
     }
 
     /**
@@ -80,11 +89,16 @@ class ProjectController extends Controller
             'image_path' => 'required|string',
             'description' => 'required|string',
             'type_id' => 'required',
+            'technologies' => 'array',
         ]);
 
         $project = Project::findOrFail($id);
-
         $project->update($request->all());
+
+        if ($request->has('technologies')) {
+            $technologies = $request->input('technologies');
+            $project->technologies()->sync($technologies);
+        }
 
         return redirect()->route('admin.projects.index')
             ->with('success', 'Progetto creato');
@@ -96,6 +110,8 @@ class ProjectController extends Controller
     public function destroy(string $id)
     {
         $project = Project::findOrFail($id);
+
+        $project->technologies()->detach();
 
         $project->delete();
 

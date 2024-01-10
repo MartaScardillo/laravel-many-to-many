@@ -41,6 +41,15 @@
                         <label for="description">Description:</label>
                         <textarea class="form-control" name="description" id="description" cols="30" rows="3"></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="technologies">Tecnologie</label><br>
+                        @foreach($technologies as $technology)
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="technologies[]" value="{{ $technology->id }}">
+                                <label class="form-check-label">{{ $technology->name }}</label>
+                            </div>
+                        @endforeach
+                    </div>
                     <br>
                     <button type="submit" class="btn btn-primary">Create Project</button>
                 </form>
